@@ -23,6 +23,7 @@ import groovy.io.FileType
 import io.realm.annotations.Ignore
 import javassist.ClassPool
 import javassist.LoaderClassPath
+import org.apache.commons.io.FileUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -119,9 +120,10 @@ class RealmTransformer extends Transform {
             logger.info "  Modifying class ${it}"
             def ctClass = classPool.getCtClass(it)
             BytecodeModifier.useRealmAccessors(ctClass, managedFields, modelClasses)
-            ctClass.writeFile(outputProvider.getContentLocation(
-                    'realm', getInputTypes(), getScopes(), Format.DIRECTORY).canonicalPath)
+            ctClass.writeFile(getOutputFile(outputProvider).canonicalPath)
         }
+
+        copyResourceFiles(inputs, outputProvider)
 
         def toc = System.currentTimeMillis()
         logger.info "Realm Transform time: ${toc-tic} milliseconds"
@@ -186,4 +188,26 @@ class RealmTransformer extends Transform {
         return classNames
     }
 
+    private copyResourceFiles(Collection<TransformInput> inputs, TransformOutputProvider outputProvider) {
+        inputs.each {
+            it.directoryInputs.each {
+                def dirPath = it.file.absolutePath
+                it.file.eachFileRecurse(FileType.FILES) {
+                    if (!it.absolutePath.endsWith(SdkConstants.DOT_CLASS)) {
+                        logger.info "  Copying resource ${it}"
+                        def dest = new File(getOutputFile(outputProvider),
+                                it.absolutePath.substring(dirPath.length()))
+                        FileUtils.copyFile(it, dest);
+                    }
+                }
+            }
+
+            // no need to implement the code for `it.jarInputs.each` since PROJECT SCOPE does not use jar input.
+        }
+    }
+
+    private File getOutputFile(TransformOutputProvider outputProvider) {
+        return outputProvider.getContentLocation(
+                'realm', getInputTypes(), getScopes(), Format.DIRECTORY)
+    }
 }
