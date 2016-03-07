@@ -16,6 +16,7 @@
 * Fixed bug in jsonExample (#2092).
 * Fixed bug when multiple calls of RealmResults.distinct() causes to return wrong results (#2198).
 * Fixed bug when calling DynamicRealmObject.setList() with RealmList<DynamicRealmObject> (#2368).
+* Fixed findFirstAsync() not completing if no object was found (#2200).
 * Added RealmQuery.isNotEmpty() (#2025). (Thank you @stk1m1)
 * Added Realm.clear() and RealmList.removeAllFromRealm() (#1560).
 * Added RealmQuery.distinct() and RealmResults.distinct() (#1568).
