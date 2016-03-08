@@ -15,9 +15,12 @@
  */
 
 package io.realm.transformer
+
+import com.sun.org.apache.xpath.internal.operations.Bool
 import javassist.*
 import javassist.expr.ExprEditor
 import javassist.expr.FieldAccess
+import org.apache.commons.collections.Closure
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 /**
@@ -55,7 +58,8 @@ class BytecodeModifier {
      * @param clazz The CtClass to modify
      * @param managedFields List of fields whose access should be replaced
      */
-    public static void useRealmAccessors(CtClass clazz, List<CtField> managedFields, List<CtClass> modelClasses) {
+    public static Boolean useRealmAccessors(CtClass clazz, List<CtField> managedFields, List<CtClass> modelClasses) {
+        Boolean isModified = false
         clazz.getDeclaredBehaviors().each { behavior ->
             logger.info "    Behavior: ${behavior.name}"
             if (
@@ -68,9 +72,13 @@ class BytecodeModifier {
                     !modelClasses.contains(clazz)
                 )
             ) {
-                behavior.instrument(new FieldAccessToAccessorConverter(managedFields, clazz, behavior))
+                behavior.instrument(new FieldAccessToAccessorConverter(managedFields, clazz, behavior, {
+                    Boolean b -> isModified = b
+                }))
             }
         }
+
+        return isModified
     }
 
     /**
@@ -92,11 +100,13 @@ class BytecodeModifier {
         final List<CtField> managedFields
         final CtClass ctClass
         final CtBehavior behavior
+        Closure callback
 
-        FieldAccessToAccessorConverter(List<CtField> managedFields, CtClass ctClass, CtBehavior behavior) {
+        FieldAccessToAccessorConverter(List<CtField> managedFields, CtClass ctClass, CtBehavior behavior, Closure callback) {
             this.managedFields = managedFields
             this.ctClass = ctClass
             this.behavior = behavior
+            this.callback = callback
         }
 
         @Override
@@ -114,6 +124,8 @@ class BytecodeModifier {
                 } else if (fieldAccess.isWriter()) {
                     fieldAccess.replace('$0.realmSet$' + fieldName + '($1);')
                 }
+
+                this.callback(true)
             }
         }
     }

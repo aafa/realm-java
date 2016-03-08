@@ -118,9 +118,10 @@ class RealmTransformer extends Transform {
         classNames.each {
             logger.info "  Modifying class ${it}"
             def ctClass = classPool.getCtClass(it)
-            BytecodeModifier.useRealmAccessors(ctClass, managedFields, modelClasses)
-            ctClass.writeFile(outputProvider.getContentLocation(
-                    'realm', getInputTypes(), getScopes(), Format.DIRECTORY).canonicalPath)
+            if (BytecodeModifier.useRealmAccessors(ctClass, managedFields, modelClasses)) {
+                ctClass.writeFile(outputProvider.getContentLocation(
+                        'realm', getInputTypes(), getScopes(), Format.DIRECTORY).canonicalPath)
+            }
         }
 
         def toc = System.currentTimeMillis()
