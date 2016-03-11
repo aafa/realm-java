@@ -97,10 +97,10 @@ bintray {
         name = 'realm-transformer'
         desc = 'Realm for Android'
         websiteUrl = 'http://realm.io'
-        issueTrackerUrl = 'https://github.com/realm/realm-java/issues'
-        vcsUrl = 'https://github.com/realm/realm-java.git'
+        issueTrackerUrl = 'https://github.com/aafa/realm-java/issues'
+        vcsUrl = 'https://github.com/aafa/realm-java.git'
         licenses = ['Apache-2.0']
-        labels = ['android', 'realm']
+        labels = ['android', 'realm', 'sbt']
         publicDownloadNumbers = false
     }
 }
