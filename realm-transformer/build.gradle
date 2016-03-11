@@ -15,7 +15,7 @@ apply plugin: 'com.jfrog.artifactory'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'io.realm'
-version = file("${projectDir}/../version.txt").text.trim();
+version = '0.88.0-SBT'
 
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
@@ -39,7 +39,7 @@ sourceSets {
 dependencies {
     compile localGroovy()
     compile gradleApi()
-    compile "io.realm:realm-annotations:${version}"
+    compile "io.realm:realm-annotations:0.87.5"
     provided 'com.android.tools.build:gradle:1.5.0'
     compile 'org.javassist:javassist:3.20.0-GA'
 
